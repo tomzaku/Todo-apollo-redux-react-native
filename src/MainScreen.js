@@ -10,7 +10,7 @@ import {
 import { FormLabel, FormInput,Button } from 'react-native-elements'
 import {connect} from 'react-redux'
 import {addNewTask} from './redux/todo/actions'
-const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 
 class MainScreen extends Component {
   constructor(props){
@@ -21,15 +21,18 @@ class MainScreen extends Component {
       dataSource:ds.cloneWithRows(this.props.todos),
     }
   }
+  componentWillReceiveProps({todos}) {
+      this.setState({
+        dataSource:ds.cloneWithRows(todos)
+      })
+  }
   _onChangeText=(newTodo)=>{
     this.setState({
       newTodo
     })
   }
   _handlingButton=()=>{
-
     this.props.dispatch(addNewTask(this.state.newTodo))
-
   }
 
   _renderRow=(rowData)=>(
@@ -38,7 +41,7 @@ class MainScreen extends Component {
     </Text>
   )
   render() {
-    // console.log(">>>>Todo",this.props);
+    console.log(">>>>Todo",this.props);
     return (
       <View style={styles.container}>
           <FormLabel>New Todo</FormLabel>
@@ -50,18 +53,11 @@ class MainScreen extends Component {
           onPress={this._handlingButton}
           title='SUBMIT' />
         <View style ={styles.body}>
-            {this.props.todos.map((eachTodo)=>(
-              <Text>
-                {eachTodo}
-              </Text>
-            ))}
+            <ListView
+              dataSource={this.state.dataSource}
+              renderRow={this._renderRow}
+              />
           </View>
-
-{/*
-        <ListView
-          dataSource={this.state.dataSource}
-          renderRow={this._renderRow}
-          /> */}
       </View>
     );
   }
@@ -70,10 +66,11 @@ class MainScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginTop:16,
   },
   body:{
     margin: 16,
-    
+
   }
 });
 const mapPropsToState=(props)=>{
