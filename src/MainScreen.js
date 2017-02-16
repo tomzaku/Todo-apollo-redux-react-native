@@ -34,7 +34,6 @@ class MainScreen extends Component {
   _handlingButton=()=>{
     this.props.dispatch(addNewTask(this.state.newTodo))
   }
-
   _renderRow=(rowData)=>(
     <Text>
       {rowData}
