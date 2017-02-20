@@ -1,6 +1,6 @@
 const initialState=[
-  "Hoc tieng anh",
-  "Choi dota",
+  "Study English",
+  "Play dota",
 ]
 
 const reducer = (state=initialState,action)=>{

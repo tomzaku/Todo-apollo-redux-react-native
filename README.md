@@ -25,6 +25,7 @@ react-native link
 1. Run server
 
 ```
+mongod
 node run_server.js
 ```
 2. Run App

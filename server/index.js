@@ -7,7 +7,7 @@ const { makeExecutableSchema } = require('graphql-tools');
 const GraphQLJSON = require('graphql-type-json');
 
 Mongoose.Promise = global.Promise;
-Mongoose.connect('mongodb://localhost/Todo4', (err) => {
+Mongoose.connect('mongodb://localhost/Todo', (err) => {
   if (err) {
     return err;
   }
