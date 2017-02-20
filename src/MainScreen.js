@@ -12,6 +12,11 @@ import {connect} from 'react-redux'
 import {addNewTask} from './redux/todo/actions'
 var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 
+
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+
+
 class MainScreen extends Component {
   constructor(props){
     super(props);
@@ -19,12 +24,16 @@ class MainScreen extends Component {
       newTodo:"",
       // todos:this.props.todos,
       dataSource:ds.cloneWithRows(this.props.todos),
+      dataSourceOnline:ds.cloneWithRows([{name:"Downloading..."}]),
     }
   }
-  componentWillReceiveProps({todos}) {
+  componentWillReceiveProps({todos,getAllTask}) {
       this.setState({
-        dataSource:ds.cloneWithRows(todos)
+        dataSource:ds.cloneWithRows(todos),
+        dataSourceOnline:ds.cloneWithRows(getAllTask.allTask),
       })
+      console.log("Change Props",getAllTask);
+
   }
   _onChangeText=(newTodo)=>{
     this.setState({
@@ -39,6 +48,23 @@ class MainScreen extends Component {
       {rowData}
     </Text>
   )
+  _renderRowOnline=({name,status})=>{
+    return(
+      <Text>
+        {`Name: ${name}(Status: ${status})`}
+      </Text>
+    )
+
+  }
+  _handlingButtonOnline=()=>{
+    console.log("Begin press button");
+    this.props.postNewTask({variables:{
+      name:this.state.newTodo,
+      status:"processing"
+    }}).then((data)=>{
+      console.log("data post: ",data);
+    })
+  }
   render() {
     console.log(">>>>Todo",this.props);
     return (
@@ -51,12 +77,26 @@ class MainScreen extends Component {
           backgroundColor={'#397af9'}
           onPress={this._handlingButton}
           title='SUBMIT' />
+          <Button
+          raised
+          buttonStyle={{marginTop:16}}
+          backgroundColor={'#397af9'}
+          onPress={this._handlingButtonOnline}
+          title='SUBMIT ONLINE' />
         <View style ={styles.body}>
+            <Text>OFFLINE</Text>
             <ListView
               dataSource={this.state.dataSource}
               renderRow={this._renderRow}
               />
-          </View>
+        </View>
+        <View style ={styles.body}>
+            <Text>ONLINE</Text>
+            <ListView
+              dataSource={this.state.dataSourceOnline}
+              renderRow={this._renderRowOnline}
+              />
+        </View>
       </View>
     );
   }
@@ -78,5 +118,32 @@ const mapPropsToState=(props)=>{
   }
 }
 
+const postNewTask = gql`
+  mutation($name:String,$status:String){
+    postNewTask(name:$name,status:$status){
+      name,
+      status,
+    }
+  }
+`
+const getAllTask= gql`
+  query{
+    allTask{
+      name,
+      status
+    }
+  }
+`
 MainScreen = connect(mapPropsToState)(MainScreen)
+
+MainScreen = graphql(
+    getAllTask,
+    {
+      name:"getAllTask"
+    }
+   )(graphql(
+  postNewTask,{
+    name:'postNewTask'
+  }
+)(MainScreen))
 export default MainScreen

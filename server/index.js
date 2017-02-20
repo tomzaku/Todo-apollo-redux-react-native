@@ -7,7 +7,7 @@ const { makeExecutableSchema } = require('graphql-tools');
 const GraphQLJSON = require('graphql-type-json');
 
 Mongoose.Promise = global.Promise;
-Mongoose.connect('mongodb://localhost/Todo', (err) => {
+Mongoose.connect('mongodb://localhost/Todo4', (err) => {
   if (err) {
     return err;
   }
@@ -18,7 +18,7 @@ createData()
 
 
 
-const PORT = 3000;
+const PORT = 8000;
 var app = express();
 
 

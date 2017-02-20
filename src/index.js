@@ -10,6 +10,14 @@ import MainScreen from './MainScreen'
 import configureStore from './redux/configureStore'
 import {Provider} from 'react-redux';
 
+
+import ApolloClient, { createNetworkInterface } from 'apollo-client';
+import { ApolloProvider } from 'react-apollo';
+const client = new ApolloClient({
+  networkInterface: createNetworkInterface({ uri: 'http://localhost:8000/graphql'})
+})
+
+
 export default class App extends Component {
   constructor(props){
     super(props)
@@ -19,9 +27,12 @@ export default class App extends Component {
   }
   render() {
     return (
-      <Provider store = {this.state.store} style={styles.container}>
-        <MainScreen/>
-      </Provider>
+      <ApolloProvider client={client}>
+        <Provider store = {this.state.store} style={styles.container}>
+            <MainScreen/>
+        </Provider>
+    </ApolloProvider>
+
     );
   }
 }
