@@ -38,5 +38,7 @@ react-native run-ios
 ```
 3. Web
 open : http://localhost:8000/graphql
+
 # Contribute
+
 If it's helpful for you, give me a star <3
