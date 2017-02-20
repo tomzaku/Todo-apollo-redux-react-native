@@ -27,10 +27,8 @@ export default class App extends Component {
   }
   render() {
     return (
-      <ApolloProvider client={client}>
-        <Provider store = {this.state.store} style={styles.container}>
+      <ApolloProvider client={client} store = {this.state.store} style={styles.container}>
             <MainScreen/>
-        </Provider>
     </ApolloProvider>
 
     );

@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
 });
 const mapPropsToState=(props)=>{
   return{
-    todos:props
+    todos:props.todo
   }
 }
 
@@ -134,7 +134,6 @@ const getAllTask= gql`
     }
   }
 `
-MainScreen = connect(mapPropsToState)(MainScreen)
 
 MainScreen = graphql(
     getAllTask,
@@ -146,4 +145,6 @@ MainScreen = graphql(
     name:'postNewTask'
   }
 )(MainScreen))
+MainScreen = connect(mapPropsToState)(MainScreen)
+
 export default MainScreen
