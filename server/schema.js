@@ -19,11 +19,9 @@ type RootQuery {
   allTask: [Task]
 }
 type RootMutation {
-  postNewTask (
-    name: String,
-    status: String
-  ): Task
-
+  postNewTask(name: String,status: String): Task
+  updateTask(_id:ID, name: String,status: String): Task
+  deleteTask(_id:ID):Task
 }
 schema {
   query: RootQuery

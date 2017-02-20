@@ -13,7 +13,8 @@ const resolveFunctions = {
       var allData = tasks.allTask()
       console.log("data: ",allData);
       return allData
-    }
+    },
+
   },
   RootMutation: {
      postNewTask(_,data,ctx){
@@ -22,6 +23,14 @@ const resolveFunctions = {
         // console.log("datta:",data);
         const task = new ctx.constructor.Tasks();
         return task.addNewTask(data.name,data.status);
+      },
+      updateTask(_,{_id,name,status},ctx){
+        const tasks = new ctx.constructor.Tasks();
+        return tasks.updateTask(_id,name,status)
+      },
+      deleteTask(_,{_id},ctx){
+        const tasks = new ctx.constructor.Tasks();
+        return tasks.deleteTask(_id)
       }
   }
 };
