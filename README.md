@@ -1,4 +1,5 @@
 # Introduce
+![App](./app-picture.png)
 This App is built on React Native + Redux + Apollo(GraphQL)
 The features in app:
   + Get All Data
