@@ -11,7 +11,7 @@ import { FormLabel, FormInput,Button } from 'react-native-elements'
 import {connect} from 'react-redux'
 import {addNewTask} from './redux/todo/actions'
 var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-
+import TaskCard from './components/TaskCard'
 
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
@@ -44,15 +44,12 @@ class MainScreen extends Component {
     this.props.dispatch(addNewTask(this.state.newTodo))
   }
   _renderRow=(rowData)=>(
-    <Text>
-      {rowData}
-    </Text>
+    <TaskCard name={rowData} />
   )
   _renderRowOnline=({name,status})=>{
     return(
-      <Text>
-        {`Name: ${name}(Status: ${status})`}
-      </Text>
+        <TaskCard name={name} status={status} />
+
     )
 
   }
@@ -71,18 +68,21 @@ class MainScreen extends Component {
       <View style={styles.container}>
           <FormLabel>New Todo</FormLabel>
           <FormInput onChangeText={this._onChangeText}/>
-          <Button
-          raised
-          buttonStyle={{marginTop:16}}
-          backgroundColor={'#397af9'}
-          onPress={this._handlingButton}
-          title='SUBMIT' />
-          <Button
-          raised
-          buttonStyle={{marginTop:16}}
-          backgroundColor={'#397af9'}
-          onPress={this._handlingButtonOnline}
-          title='SUBMIT ONLINE' />
+          <View style={styles.buttonComponent}>
+            <Button
+            raised
+            buttonStyle={{marginTop:16}}
+            backgroundColor={'#397af9'}
+            onPress={this._handlingButton}
+            title='SUBMIT OFFLINE' />
+            <Button
+            raised
+            buttonStyle={{marginTop:16}}
+            backgroundColor={'#16af2b'}
+            onPress={this._handlingButtonOnline}
+            title='SUBMIT ONLINE' />
+          </View>
+
         <View style ={styles.body}>
             <Text>OFFLINE</Text>
             <ListView
@@ -106,6 +106,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginTop:16,
+  },
+  buttonComponent:{
   },
   body:{
     margin: 16,
