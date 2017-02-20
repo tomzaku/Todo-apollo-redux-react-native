@@ -5,6 +5,6 @@ const TaskSchema = Mongoose.Schema({
   status: String,
 });
 
-const Task = Mongoose.model('Task', TaskSchema);
+const Task = Mongoose.model('Task1', TaskSchema);
 
 module.exports = Task;

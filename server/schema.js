@@ -1,17 +1,29 @@
+var {
+    GraphQLNonNull,
+    GraphQLObjectType,
+    GraphQLInt,
+    GraphQLSchema,
+    GraphQLString,
+    GraphQLList,
+    GraphQLID
+} = require( "graphql");
+
 const typeDefinitions = `
-type Tasks {
+type Task {
   name: String
   status: String
 }
 type RootQuery {
-  tasks(name: String, status: String): Tasks
+
+  tasks(name: String, status: String): Task
+  allTask: [Task]
 }
-# this schema allows the following mutation
-type RootMutation{
-  postNewTask(
+type RootMutation {
+  postNewTask (
     name: String,
     status: String
-  ): Tasks
+  ): Task
+
 }
 schema {
   query: RootQuery
@@ -20,4 +32,4 @@ schema {
 
 `;
 
-module.exports = [typeDefinitions];
+module.exports = typeDefinitions;

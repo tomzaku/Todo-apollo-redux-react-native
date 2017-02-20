@@ -1,9 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const Mongoose = require('mongoose');
-const {apolloExpress,graphqlExpress,graphiqlExpress} = require('graphql-server-express')
+const {apolloExpress,graphqlExpress,graphiqlExpress,graphqlConnect} = require('graphql-server-express')
 const { makeExecutableSchema } = require('graphql-tools');
 
+const GraphQLJSON = require('graphql-type-json');
 
 Mongoose.Promise = global.Promise;
 Mongoose.connect('mongodb://localhost/Todo', (err) => {
@@ -25,6 +26,9 @@ const Schema = require('./schema');
 const Resolvers = require('./resolvers');
 const Connectors = require('./connectors');
 
+// const resolveFunctions = {
+//   JSON: GraphQLJSON
+// };
 
 const executableSchema = makeExecutableSchema({
   typeDefs: Schema,
@@ -33,6 +37,8 @@ const executableSchema = makeExecutableSchema({
 // bodyParser is needed just for POST.
 app.use('/graphql', bodyParser.json(), graphqlExpress({
   schema: executableSchema,
+  graphiql: true,
+  pretty: true,
   context: {
     constructor: Connectors,
   },
