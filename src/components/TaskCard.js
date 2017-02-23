@@ -7,12 +7,17 @@ import {
   StyleSheet,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import {deleteTask,getAllTask,postNewTask} from '../mutations'
 
 export default class TaskCard extends Component {
   _renderIcon=()=>{
     if (this.props.status=='done'){
       return(
         <Icon name={'done'}/>
+      )
+    }else if(this.props.status=='uploading'){
+      return(
+        <Icon name={'file-upload'}/>
       )
     }else{
       return(
@@ -21,14 +26,26 @@ export default class TaskCard extends Component {
     }
   }
   render() {
-    const {name,status,index}=this.props;
-    console.log("TaskCard",name,status);
+    const {name,status,index,_id}=this.props;
+    // console.log("TaskCard",name,status);
     return (
       <View style={styles.container}>
         <Text>{name}</Text>
         <View style={styles.betweenComponent}>
-          <Icon name={'delete'}/>
-          <Icon name={'build'} style={{marginLeft:7,marginRight:26}}/>
+          <Icon name={'delete'} onPress={()=>this.props.onPressLeftButton({
+              variables:{
+              _id
+            },
+            refetchQueries:[
+              {
+                query:getAllTask,
+              }
+            ],
+            })}/>
+          <Icon
+            name={'build'}
+            style={{marginLeft:7,marginRight:26}}
+            onPress={()=>this.props.navigator.push({routeName:'task-detail',data:{name,status,_id,index},refreshNavigator:this.props.refreshNavigator})}/>
           {this._renderIcon()}
         </View>
 

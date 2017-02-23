@@ -2,8 +2,10 @@ import todo from './todo/reducers'
 
 import { createStore, combineReducers, applyMiddleware, compose } from 'redux';
 import createLogger from 'redux-logger';
-const loggerMiddleware = createLogger();
+import {persistStore, autoRehydrate} from 'redux-persist'
 
+const loggerMiddleware = createLogger();
+import {AsyncStorage} from 'react-native'
 import { ApolloProvider } from 'react-apollo';
 import ApolloClient, { createNetworkInterface } from 'apollo-client';
 const client = new ApolloClient({
@@ -15,12 +17,17 @@ const rootReducer = combineReducers({
 })
 
 export default function configureStore(onComplete){
-  let store = createStore(
+  var store = createStore(
     rootReducer,
-    applyMiddleware(
-      loggerMiddleware,
-      client.middleware()
+    {},
+    compose(
+      applyMiddleware(
+        loggerMiddleware,
+        client.middleware(),
+      ),
+      autoRehydrate()
     )
   )
+  persistStore(store, {storage: AsyncStorage})
   return store
 }

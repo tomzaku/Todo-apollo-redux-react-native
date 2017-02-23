@@ -10,11 +10,11 @@ var {
 
 const typeDefinitions = `
 type Task {
+  _id: String
   name: String
   status: String
 }
 type RootQuery {
-
   tasks(name: String, status: String): Task
   allTask: [Task]
 }

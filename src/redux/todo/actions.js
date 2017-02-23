@@ -4,4 +4,11 @@ function addNewTask(task){
     task
   }
 }
-export {addNewTask}
+function deleteTask(index){
+  console.log("DELETE FROM REDUX");
+  return{
+    type:'DELETE_TASK',
+    index
+  }
+}
+export {addNewTask,deleteTask}
