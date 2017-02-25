@@ -5,7 +5,8 @@ import {
   View,
   Text,
   StyleSheet,
-  ListView
+  ListView,
+  NetInfo
 } from 'react-native';
 import { FormLabel, FormInput,Button } from 'react-native-elements'
 import {connect} from 'react-redux'
@@ -16,7 +17,7 @@ import update from 'immutability-helper';
 
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import {deleteTask,getAllTask,postNewTask} from './mutations'
+import {withMutationsPost,withMutationsPostGet,withMutationsDelete} from './mutations'
 
 class MainScreen extends Component {
   constructor(props){
@@ -28,9 +29,16 @@ class MainScreen extends Component {
       dataSourceOnline:ds.cloneWithRows([{name:"Downloading..."}]),
     }
   }
-  refreshNavigator=()=>{
-    this.props.getAllTask.refetch()
-  }
+  componentWillMount(){
+    // this.props.actions.checkConnection();
+    NetInfo.isConnected.addEventListener('change',isConnected=>{
+      if(isConnected){
+        alert("Online!")
+      }else{
+        alert("Offline!")
+      }
+    })
+}
   componentWillReceiveProps(props) {
       console.log("PropsWillReceive",props);
       const {todos,getAllTask} =props
@@ -44,7 +52,9 @@ class MainScreen extends Component {
           dataSourceOnline:ds.cloneWithRows(getAllTask.allTask),
         })
       }
-
+      if(getAllTask.error){
+        alert(getAllTask.error)
+      }
       console.log("Change Props",getAllTask);
 
   }
@@ -60,48 +70,22 @@ class MainScreen extends Component {
     <TaskCard name={rowData} navigator={this.props.navigator} index={index} />
   )
   _renderRowOnline=({name,status,_id})=>{
-    // console.log("Watch ID",_id);
     return(
-     <TaskCard name={name} status={status} navigator={this.props.navigator} _id={_id} refreshNavigator={this.refreshNavigator} onPressLeftButton={this.props.deleteTask}/>
+     <TaskCard name={name} status={status} navigator={this.props.navigator} _id={_id} onPressLeftButton={this.props.deleteTask}/>
     )
-    // return(
-    //   <View>
-    //
-    //   </View>
-    // )
   }
   _handlingButtonOnline=()=>{
     console.log("Begin press button");
     this.props.postNewTask(
       {
-      // variables:{
-      //   name:this.state.newTodo,
-      //   status:"processing"
-      // },
-      // optimisticResponse:{
-      //   __typename: 'Mutation',
-      //   postNewTask:{
-      //     __typename:'Task',
-      //     _id:null,
-      //     name:this.state.newTodo,
-      //     status:"processing"
-      //   }
-      // },
-      // refetchQueries:[
-      //   {
-      //     query:getAllTask,
-      //   }
-      // ],
-      // updateQueries:{
-      //   Task:(prev,{mutationResult})=>{
-      //     console.log(">>UpDAteQUERIES--",mutationResult);
-      //   }
-      // }
       name:this.state.newTodo,
       status:"processing"
     }).then((data)=>{
       console.log("data post: ",data);
       // this.props.getAllTask.refetch()
+    }).catch(err=>{
+      console.log("ERR",err)
+      alert(err)
     })
     // newData= this.props.getAllTask.allTask
     // newData.push({
@@ -126,18 +110,18 @@ class MainScreen extends Component {
           <FormLabel>New Todo</FormLabel>
           <FormInput onChangeText={this._onChangeText}/>
           <View style={styles.buttonComponent}>
-            <Button
+            {/* <Button
             raised
             buttonStyle={{marginTop:16}}
             backgroundColor={'#397af9'}
             onPress={this._handlingButton}
-            title='SUBMIT OFFLINE' />
+            title='SUBMIT OFFLINE' /> */}
             <Button
             raised
             buttonStyle={{marginTop:16}}
             backgroundColor={'#16af2b'}
             onPress={this._handlingButtonOnline}
-            title='SUBMIT ONLINE' />
+            title='SUBMIT' />
           </View>
 
         {/* <View style ={styles.body}>
@@ -182,76 +166,7 @@ const mapPropsToState=(props)=>{
   }
 }
 
-const withMutationsPost = graphql(postNewTask,{
-  props:({ownProps,mutate})=>({
-    postNewTask:({name,status})=>
-      mutate({
-        variables:{name,status},
-        optimisticResponse:{
-          __typename: 'Mutation',
-          postNewTask:{
-            __typename:'Task',
-            name,
-            status:"uploading",
-            _id:"@1321321321sdas"
-          }
-        },
-        refetchQueries:[
-          {
-            query:getAllTask,
-          }
-        ],
-        updateQueries:{
-          allTaskQuerry:(prev,{mutationResult})=>{
-            console.log("UPDATE QUERIES",mutationResult,prev);
-            var newTask= mutationResult.data.postNewTask;
-            // return update(prev,{
-            //   allTask:{
-            //     ...newTask
-            //   }
-            // })
-            newTask.status="uploading"
-            const result ={...prev,
-            allTask:[...prev.allTask,newTask]}
-            return  result
-          }
-        }
-
-      })
-  })
-})
-
-
-MainScreen = graphql(
-    getAllTask,
-    {
-      name:"getAllTask",
-      props: (data)=>{
-        console.log("WTF WITH QUERIES",data);
-        return data
-      },
-      // options:() =>({
-      //   reducer: (previousResult,action)=>{
-      //     console.log(">>>>OPTION QUERRY",previousResult,action);
-      //     return {
-      //       getAllTask:{
-      //         ...previousResult,
-      //         allTask:[...previousResult.allTask,
-      //           {
-      //             name:"Dc di mi",
-      //             status:"uploading"
-      //           }
-      //         ]
-      //       }
-      //     }
-      //   }
-      // })
-    }
-   )(withMutationsPost(graphql(
-  deleteTask,{
-    name:"deleteTask",
-
-})(MainScreen)))
+MainScreen = withMutationsPostGet(withMutationsPost(withMutationsDelete(MainScreen)))
 
 MainScreen = connect(mapPropsToState)(MainScreen)
 

@@ -32,32 +32,7 @@ export default class TaskCard extends Component {
       <View style={styles.container}>
         <Text>{name}</Text>
         <View style={styles.betweenComponent}>
-          <Icon name={'delete'} onPress={()=>this.props.onPressLeftButton({
-              variables:{
-              _id
-            },
-            optimisticResponse:{
-              __typename:'Mutatioin',
-              deleteTaskQuerry:{
-                __typename:'Task',
-                _id
-              }
-            },
-            updateQueries:{
-              allTaskQuerry:(prev,{mutationResult})=>{
-                console.log(">>>DELETE TASK",prev,mutationResult);
-                const result ={...prev,
-                allTask:prev.allTask.slice(0,prev.allTask.length-1)}
-                console.log("RESULT",result);
-                return result
-              }
-            },
-            refetchQueries:[
-              {
-                query:getAllTask,
-              }
-            ],
-            })}/>
+          <Icon name={'delete'} onPress={()=>this.props.onPressLeftButton({_id})}/>
           <Icon
             name={'build'}
             style={{marginLeft:7,marginRight:26}}

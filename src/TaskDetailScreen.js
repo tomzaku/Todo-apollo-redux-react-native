@@ -12,7 +12,7 @@ import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import {connect} from 'react-redux'
 import {deleteTask as deleteTaskRedux} from './redux/todo/actions'
-
+import {withMutationUpdate,withMutationsDelete} from './mutations'
 class TaskDetailScreen extends Component {
   constructor(props){
     super(props)
@@ -46,19 +46,20 @@ class TaskDetailScreen extends Component {
 
     }else{
       this.props.updateTask({
-        variables:{
           _id,
           name:this.state.newTodo,
           status:this.state.status[0]==true?'done':'processing'
         }
-      }).then((data)=>{
+      ).then((data)=>{
         console.log("data-update",data,_id)
-        alert("Done!")
+        // alert("Done!")
         console.log("this.props",this.props);
-        this.props.refreshNavigator()
-        this.props.navigator.pop()
+        // this.props.refreshNavigator()
+      }).catch(err=>{
+        alert(err)
       })
     }
+    this.props.navigator.pop()
 
 
   }
@@ -68,7 +69,6 @@ class TaskDetailScreen extends Component {
     if(typeof(index) =='string'){
       console.log("BEGIN DELETE FROM REDUX");
       this.props.dispatch(deleteTaskRedux(index))
-      this.props.navigator.pop()
     }else{
       console.log("data-delete",_id)
       this.props.deleteTask({
@@ -76,11 +76,14 @@ class TaskDetailScreen extends Component {
             _id
         }
       }).then((data)=>{
-        alert("Done!")
-        this.props.refreshNavigator()
-        this.props.navigator.pop()
+        // alert("Done!")
+        // this.props.refreshNavigator()
+      }).catch(err=>{
+        alert("ERR",err)
       })
-    }
+      }
+    this.props.navigator.pop()
+
 
   }
   render() {
@@ -127,33 +130,7 @@ const styles = StyleSheet.create({
 });
 
 
-const updateTask = gql`
-  mutation($_id:ID,$name:String,$status:String){
-    updateTask(_id:$_id,name:$name,status:$status){
-      name,
-      status,
-    }
-  }
-`
-const deleteTask= gql`
-  mutation($_id:ID){
-    deleteTask(_id:$_id){
-      name,
-      status
-    }
-  }
-`
-
-TaskDetailScreen = graphql(
-    updateTask,
-    {
-      name:"updateTask"
-    }
-   )(graphql(
-  deleteTask,{
-    name:'deleteTask'
-  }
-)(TaskDetailScreen))
+TaskDetailScreen = withMutationUpdate(withMutationsDelete(TaskDetailScreen))
 TaskDetailScreen = connect()(TaskDetailScreen)
 
 export default TaskDetailScreen

@@ -18,7 +18,7 @@ import { ApolloProvider } from 'react-apollo';
 const client = new ApolloClient({
   networkInterface: createNetworkInterface({ uri: 'http://localhost:8000/graphql'}),
   dataIdFromObject: result => {
-    console.log("DATA",result);
+    // console.log("DATA",result);
     if (result._id && result.__typename) {
      return result.__typename + result._id;
    }
