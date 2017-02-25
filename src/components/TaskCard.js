@@ -36,6 +36,22 @@ export default class TaskCard extends Component {
               variables:{
               _id
             },
+            optimisticResponse:{
+              __typename:'Mutatioin',
+              deleteTaskQuerry:{
+                __typename:'Task',
+                _id
+              }
+            },
+            updateQueries:{
+              allTaskQuerry:(prev,{mutationResult})=>{
+                console.log(">>>DELETE TASK",prev,mutationResult);
+                const result ={...prev,
+                allTask:prev.allTask.slice(0,prev.allTask.length-1)}
+                console.log("RESULT",result);
+                return result
+              }
+            },
             refetchQueries:[
               {
                 query:getAllTask,

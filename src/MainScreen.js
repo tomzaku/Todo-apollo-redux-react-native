@@ -12,6 +12,7 @@ import {connect} from 'react-redux'
 import {addNewTask} from './redux/todo/actions'
 var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 import TaskCard from './components/TaskCard'
+import update from 'immutability-helper';
 
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
@@ -31,7 +32,7 @@ class MainScreen extends Component {
     this.props.getAllTask.refetch()
   }
   componentWillReceiveProps(props) {
-      console.log("Props",props);
+      console.log("PropsWillReceive",props);
       const {todos,getAllTask} =props
       if(todos){
         this.setState({
@@ -71,31 +72,33 @@ class MainScreen extends Component {
   }
   _handlingButtonOnline=()=>{
     console.log("Begin press button");
-    this.props.postNewTask({
-      variables:{
-        name:this.state.newTodo,
-        status:"processing"
-      },
-      optimisticResponse:{
-        __typename: 'Mutation',
-        postNewTask:{
-          __typename:'Task',
-          _id:null,
-          name:this.state.newTodo,
-          status:"processing"
-        }
-      },
-      refetchQueries:[
-        {
-          query:getAllTask,
-        }
-      ],
-      updateQueries:{
-        Task:(prev,{mutationResult})=>{
-          console.log(">>UpDAteQUERIES--",mutationResult);
-        }
-      }
-
+    this.props.postNewTask(
+      {
+      // variables:{
+      //   name:this.state.newTodo,
+      //   status:"processing"
+      // },
+      // optimisticResponse:{
+      //   __typename: 'Mutation',
+      //   postNewTask:{
+      //     __typename:'Task',
+      //     _id:null,
+      //     name:this.state.newTodo,
+      //     status:"processing"
+      //   }
+      // },
+      // refetchQueries:[
+      //   {
+      //     query:getAllTask,
+      //   }
+      // ],
+      // updateQueries:{
+      //   Task:(prev,{mutationResult})=>{
+      //     console.log(">>UpDAteQUERIES--",mutationResult);
+      //   }
+      // }
+      name:this.state.newTodo,
+      status:"processing"
     }).then((data)=>{
       console.log("data post: ",data);
       // this.props.getAllTask.refetch()
@@ -179,22 +182,6 @@ const mapPropsToState=(props)=>{
   }
 }
 
-
-
-
-MainScreen = graphql(
-    getAllTask,
-    {
-      name:"getAllTask"
-    }
-   )(graphql(
-  postNewTask,{
-    name:'postNewTask',
-  }
-)(graphql(
-  deleteTask,{
-    name:"deleteTask"
-})(MainScreen)))
 const withMutationsPost = graphql(postNewTask,{
   props:({ownProps,mutate})=>({
     postNewTask:({name,status})=>
@@ -204,14 +191,68 @@ const withMutationsPost = graphql(postNewTask,{
           __typename: 'Mutation',
           postNewTask:{
             __typename:'Task',
-            _id:null,
-            name:this.state.newTodo,
-            status:"processing"
+            name,
+            status:"uploading",
+            _id:"@1321321321sdas"
           }
         },
+        refetchQueries:[
+          {
+            query:getAllTask,
+          }
+        ],
+        updateQueries:{
+          allTaskQuerry:(prev,{mutationResult})=>{
+            console.log("UPDATE QUERIES",mutationResult,prev);
+            var newTask= mutationResult.data.postNewTask;
+            // return update(prev,{
+            //   allTask:{
+            //     ...newTask
+            //   }
+            // })
+            newTask.status="uploading"
+            const result ={...prev,
+            allTask:[...prev.allTask,newTask]}
+            return  result
+          }
+        }
+
       })
   })
 })
+
+
+MainScreen = graphql(
+    getAllTask,
+    {
+      name:"getAllTask",
+      props: (data)=>{
+        console.log("WTF WITH QUERIES",data);
+        return data
+      },
+      // options:() =>({
+      //   reducer: (previousResult,action)=>{
+      //     console.log(">>>>OPTION QUERRY",previousResult,action);
+      //     return {
+      //       getAllTask:{
+      //         ...previousResult,
+      //         allTask:[...previousResult.allTask,
+      //           {
+      //             name:"Dc di mi",
+      //             status:"uploading"
+      //           }
+      //         ]
+      //       }
+      //     }
+      //   }
+      // })
+    }
+   )(withMutationsPost(graphql(
+  deleteTask,{
+    name:"deleteTask",
+
+})(MainScreen)))
+
 MainScreen = connect(mapPropsToState)(MainScreen)
 
 export default MainScreen

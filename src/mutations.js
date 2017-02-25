@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 
 const deleteTask= gql`
-  mutation($_id:ID){
+  mutation deleteTaskQuerry($_id:ID){
     deleteTask(_id:$_id){
       name,
       status
@@ -9,7 +9,7 @@ const deleteTask= gql`
   }
 `
 const getAllTask= gql`
-  query{
+  query allTaskQuerry{
     allTask{
       name,
       status,
@@ -18,7 +18,7 @@ const getAllTask= gql`
   }
 `
 const postNewTask = gql`
-  mutation($name:String,$status:String){
+  mutation postNewTaskQuerry($name:String,$status:String){
     postNewTask(name:$name,status:$status){
       name,
       status,
