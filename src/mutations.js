@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-
+const uuidV1 = require('uuid/v1');
 const deleteTask= gql`
   mutation deleteTaskQuerry($_id:ID){
     deleteTask(_id:$_id){
@@ -46,7 +46,7 @@ const withMutationsPost = graphql(postNewTask,{
             __typename:'Task',
             name,
             status:"uploading",
-            _id:"@1321321321sdas"
+            _id:uuidV1()
           }
         },
         refetchQueries:[
@@ -64,6 +64,11 @@ const withMutationsPost = graphql(postNewTask,{
             //   }
             // })
             newTask.status="uploading"
+            if(prev.allTask==null){
+              prev = {
+                allTask:[]
+              }
+            }
             const result ={...prev,
             allTask:[...prev.allTask,newTask]}
             return  result
@@ -76,12 +81,13 @@ const withMutationsPost = graphql(postNewTask,{
 const withMutationsPostGet= graphql(getAllTask,
   {
     name:"getAllTask",
-    options: { pollInterval: 2000 },
+    // options: { pollInterval: 2000 },
+
   })
 const withMutationsDelete = graphql(
     deleteTask,{
       props:({ownProps,mutate})=>({
-        deleteTask:({_id})=>
+        deleteTask:({_id,index})=>
           mutate({
             variables:{_id},
             optimisticResponse:{
@@ -93,12 +99,15 @@ const withMutationsDelete = graphql(
             },
             updateQueries:{
               allTaskQuerry:(prev,{mutationResult})=>{
-                console.log(">>>DELETE TASK",prev,mutationResult);
+                console.log(">>>DELETE TASK",prev,mutationResult,ownProps);
                 const result ={...prev,
-                allTask:prev.allTask.slice(0,prev.allTask.length-1)}
-                console.log("RESULT",result);
+                  allTask:[...prev.allTask.slice(0,index),...prev.allTask.slice(index+1,prev.allTask.length)]
+                }
                 return result
               }
+            },
+            reducer : (data)=>{
+              console.log("DATA REDUCER from mutation",data);
             },
             refetchQueries:[
               {
@@ -113,16 +122,16 @@ const withMutationUpdate = graphql(
     updateTask,
     {
       props:({ownProps,mutate})=>({
-        updateTask:({_id,name,_status})=>
+        updateTask:({_id,name,status})=>
           mutate({
-            variables:{_id,name,_status},
+            variables:{_id,name,status},
             optimisticResponse:{
               __typename:"Mutatioin",
               updateTaskQuerry:{
                 __typename:"Task",
                 _id,
                 name,
-                _status
+                status
               }
             },
             refetchQueries:[

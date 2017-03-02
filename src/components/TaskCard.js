@@ -11,19 +11,27 @@ import {deleteTask,getAllTask,postNewTask} from '../mutations'
 
 export default class TaskCard extends Component {
   _renderIcon=()=>{
-    if (this.props.status=='done'){
-      return(
-        <Icon name={'done'}/>
-      )
-    }else if(this.props.status=='uploading'){
-      return(
-        <Icon name={'file-upload'}/>
-      )
-    }else{
-      return(
-        <Icon name={'alarm'}/>
-      )
+    switch (this.props.status){
+      case 'done' : return <Icon name={'done'}/>
+      case 'uploading' : return  <Icon name={'file-upload'}/>
+      case 'error': return   <Icon name={'error-outline'} color={'red'}/>
+      case 'processing': <Icon name={'alarm'}/>
+      default: return <Icon name={'alarm'}/>
     }
+
+    // if (this.props.status=='done'){
+    //   return(
+    //     <Icon name={'done'}/>
+    //   )
+    // }else if(this.props.status=='uploading'){
+    //   return(
+    //     <Icon name={'file-upload'}/>
+    //   )
+    // }else{
+    //   return(
+    //     <Icon name={'alarm'}/>
+    //   )
+    // }
   }
   render() {
     const {name,status,index,_id}=this.props;
@@ -32,7 +40,7 @@ export default class TaskCard extends Component {
       <View style={styles.container}>
         <Text>{name}</Text>
         <View style={styles.betweenComponent}>
-          <Icon name={'delete'} onPress={()=>this.props.onPressLeftButton({_id})}/>
+          <Icon name={'delete'} onPress={()=>this.props.onPressLeftButton({_id,index: parseInt(index)})}/>
           <Icon
             name={'build'}
             style={{marginLeft:7,marginRight:26}}

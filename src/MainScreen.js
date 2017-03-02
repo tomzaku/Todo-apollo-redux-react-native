@@ -11,6 +11,7 @@ import {
 import { FormLabel, FormInput,Button } from 'react-native-elements'
 import {connect} from 'react-redux'
 import {addNewTask} from './redux/todo/actions'
+import {addNewTaskQueue} from './redux/mutation-queries/actions'
 var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 import TaskCard from './components/TaskCard'
 import update from 'immutability-helper';
@@ -52,9 +53,9 @@ class MainScreen extends Component {
           dataSourceOnline:ds.cloneWithRows(getAllTask.allTask),
         })
       }
-      if(getAllTask.error){
-        alert(getAllTask.error)
-      }
+      // if(getAllTask.error){
+      //   alert(getAllTask.error)
+      // }
       console.log("Change Props",getAllTask);
 
   }
@@ -69,23 +70,31 @@ class MainScreen extends Component {
   _renderRow=(rowData,undefind,index)=>(
     <TaskCard name={rowData} navigator={this.props.navigator} index={index} />
   )
-  _renderRowOnline=({name,status,_id})=>{
+  _renderRowOnline=({name,status,_id},undefind,index)=>{
     return(
-     <TaskCard name={name} status={status} navigator={this.props.navigator} _id={_id} onPressLeftButton={this.props.deleteTask}/>
+     <TaskCard name={name} status={status} navigator={this.props.navigator} index={index} _id={_id} onPressLeftButton={this.props.deleteTask}/>
     )
   }
   _handlingButtonOnline=()=>{
     console.log("Begin press button");
-    this.props.postNewTask(
-      {
+    var newTask ={
       name:this.state.newTodo,
       status:"processing"
-    }).then((data)=>{
+    }
+    this.props.postNewTask(newTask).then((data)=>{
       console.log("data post: ",data);
       // this.props.getAllTask.refetch()
     }).catch(err=>{
-      console.log("ERR",err)
-      alert(err)
+      // console.log("ERR",err)
+      // alert(err)
+      // this.props.dispatch(addNewTaskQueue(newTask))
+      newTask.status = "error"
+
+      this.setState({
+        // dataSourceOnline:ds.cloneWithRows(this.props.mutationTodoQueries.map((data)=>{data.status= "error";return data}))
+        // dataSourceOnline:ds.cloneWithRows([...this.state.dataSourceOnline._dataBlob.s1,newTask])
+      })
+
     })
     // newData= this.props.getAllTask.allTask
     // newData.push({
@@ -105,6 +114,7 @@ class MainScreen extends Component {
   }
   render() {
     console.log(">>>>PROPS",this.props);
+    // console.log(">>>>STAte",this.state.dataSourceOnline._dataBlob.s1);
     return (
       <View style={styles.container}>
           <FormLabel>New Todo</FormLabel>
@@ -142,8 +152,8 @@ class MainScreen extends Component {
           raised
           buttonStyle={{marginTop:16,marginBottom:16}}
           backgroundColor={'#09b7c6'}
-          onPress={this._handlingButtonOnline}
-        title='SYNC DATA' />
+          onPress={()=>this.props.navigator.push({routeName:"watch-queue"})}
+        title='WATCH QUERIES' />
       </View>
     );
   }
@@ -162,7 +172,9 @@ const styles = StyleSheet.create({
 });
 const mapPropsToState=(props)=>{
   return{
-    todos:props.todo
+    todos:props.todo,
+    mutationTodoQueries:props.mutationQueries.todo,
+    apollo:props.apollo
   }
 }
 
